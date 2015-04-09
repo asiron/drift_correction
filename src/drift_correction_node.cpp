@@ -12,17 +12,40 @@ DriftCorrectionNode::DriftCorrectionNode() :
 {
   m_privateNh.param("global_frame_id", m_globalFrameId, m_globalFrameId);
   m_privateNh.param("torso_frame_id", m_torsoFrameId, m_torsoFrameId);
-  m_privateNh.param("sensor_frame_id", m_sensorFrameId, m_sensorFrameId);
   m_privateNh.param("odom_frame_id", m_odomFrameId, m_odomFrameId);
   m_privateNh.param("publishing_frequency", m_publishingFrequency, m_publishingFrequency);
 
+  if (m_privateNh.hasParam("sensor_frame_id") == false)
+  {
+    ROS_FATAL("Sensor frame id is required parameter");
+    exit(-1);
+  }
+  else
+  {
+    m_privateNh.param("sensor_frame_id", m_sensorFrameId, m_sensorFrameId);
+  }
 }
 
-int main(int argc, char const *argv[])
+DriftCorrectionNode::~DriftCorrectionNode()
 {
-	ros::init(argc, argv, "drift_correction")
-	DriftCorrectionNode dc;
 
+}
+
+void DriftCorrectionNode::run()
+{
+  m_publishingTimer = m_nh.createTimer(ros::Duration( 1 / m_publishingFrequency), &DriftCorrectionNode::publishTimerCallback, this);
+}
+
+void DriftCorrectionNode::publishTimerCallback(const ros::TimerEvent&)
+{
+
+}
+
+int main(int argc, char** argv)
+{
+	ros::init(argc, argv, "drift_correction");
+	DriftCorrectionNode dc;
+  dc.run();
 
 	return 0;
 }

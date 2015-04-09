@@ -1,0 +1,5 @@
+<launch> 
+  <node pkg="drift_correction" type="drift_correction_node" name="drift_correction">
+    <param name="sensor_frame_id" value="/nao_tracker/base_link" type="str"/>
+  </node>
+</launch>
