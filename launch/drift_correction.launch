@@ -1,9 +1,9 @@
 <launch> 
   <node pkg="drift_correction" type="drift_correction_node" name="drift_correction">
-    <param name="sensor_frame_id" value="HeadTouchFront_frame" type="str"/>
+    <param name="sensor_frame_id" value="Tracker" type="str"/>
     <param name="tracked_frame_id" value="/nao_tracker/base_link" type="str"/>
 
     <param name="publishing_frequency" value="30" type="int"/>
   </node>
-  <node pkg="tf" type="static_transform_publisher" name="head_to_sensor" args="0 0 0 0 0 0 1 Tracker HeadTouchFront_frame 100" />
+  <node pkg="tf" type="static_transform_publisher" name="head_to_sensor" args="0 0 0 0 1.57 0 HeadTouchFront_frame Tracker  10" />
 </launch>

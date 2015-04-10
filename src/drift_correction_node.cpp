@@ -55,6 +55,25 @@ void DriftCorrectionNode::run()
 
 void DriftCorrectionNode::publishTimerCallback(const ros::TimerEvent& event)
 {
+
+  if (m_tfListener.canTransform(m_globalFrameId, m_trackedFrameId, ros::Time(0)) == false)
+  {
+    ROS_INFO("Cannot transform from global frame: %s to tracked frame: %s", m_globalFrameId.c_str(), m_trackedFrameId.c_str());
+    return;
+  }
+
+  if (m_tfListener.canTransform(m_odomFrameId, m_torsoFrameId, ros::Time(0)) == false)
+  {
+    ROS_INFO("Cannot transform from odometry frame: %s to torso frame: %s", m_odomFrameId.c_str(), m_torsoFrameId.c_str());
+    return;
+  }
+
+  if (m_tfListener.canTransform(m_torsoFrameId, m_sensorFrameId, ros::Time(0)) == false)
+  {
+    ROS_INFO("Cannot transform from torso frame: %s to sensor frame: %s", m_torsoFrameId.c_str(), m_sensorFrameId.c_str());
+    return;
+  }
+
   tf::StampedTransform global_to_tracked;
   tf::StampedTransform odom_to_torso;
   tf::StampedTransform torso_to_sensor;
@@ -65,15 +84,14 @@ void DriftCorrectionNode::publishTimerCallback(const ros::TimerEvent& event)
     m_tfListener.lookupTransform(m_torsoFrameId, m_sensorFrameId, ros::Time(0), torso_to_sensor);
 
     tf::Transform odom_to_sensor = odom_to_torso * torso_to_sensor;
-    tf::Transform global_to_odom(global_to_tracked * odom_to_sensor.inverse());
-
-    m_tfBroadcaster.sendTransform(tf::StampedTransform(global_to_odom, ros::Time::now(), m_globalFrameId, m_odomFrameId));
-
+    m_currentDriftCorrection = global_to_tracked * odom_to_sensor.inverse();
   }
   catch (tf::TransformException ex)
   {
     ROS_ERROR("%s", ex.what());
   }
+
+  m_tfBroadcaster.sendTransform(tf::StampedTransform(m_currentDriftCorrection, ros::Time::now(), m_globalFrameId, m_odomFrameId));
 }
 
 int main(int argc, char** argv)
