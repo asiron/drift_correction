@@ -3,13 +3,13 @@
 DriftCorrectionNode::DriftCorrectionNode() :
   m_nh(),
   m_privateNh("~"),
-	m_globalFrameId("/world"),
-	m_torsoFrameId("/torso"),
+	m_globalFrameId("world"),
+	m_torsoFrameId("torso"),
 	m_sensorFrameId(""),
   m_trackedFrameId(""),
-	m_odomFrameId("/odom"),
+	m_odomFrameId("odom"),
   m_publishingFrequency(100.0),
-  m_tfListener(),
+  //m_tfListener(),
   m_tfBroadcaster(),
   m_currentDriftCorrection()
 
@@ -39,6 +39,11 @@ DriftCorrectionNode::DriftCorrectionNode() :
     m_privateNh.param("tracked_frame_id", m_trackedFrameId, m_trackedFrameId);
   }
 
+  m_torsoFrameId   = m_tfListener.resolve(m_torsoFrameId);
+  m_odomFrameId    = m_tfListener.resolve(m_odomFrameId);
+  m_sensorFrameId  = m_tfListener.resolve(m_sensorFrameId);
+  
+
   ROS_INFO("Drift Correction Node initialized...");
 }
 
@@ -58,19 +63,19 @@ void DriftCorrectionNode::publishTimerCallback(const ros::TimerEvent& event)
 
   if (m_tfListener.canTransform(m_globalFrameId, m_trackedFrameId, ros::Time(0)) == false)
   {
-    ROS_INFO("Cannot transform from global frame: %s to tracked frame: %s", m_globalFrameId.c_str(), m_trackedFrameId.c_str());
+    ROS_DEBUG("Cannot transform from global frame: %s to tracked frame: %s", m_globalFrameId.c_str(), m_trackedFrameId.c_str());
     return;
   }
 
   if (m_tfListener.canTransform(m_odomFrameId, m_torsoFrameId, ros::Time(0)) == false)
   {
-    ROS_INFO("Cannot transform from odometry frame: %s to torso frame: %s", m_odomFrameId.c_str(), m_torsoFrameId.c_str());
+    ROS_DEBUG("Cannot transform from odometry frame: %s to torso frame: %s", m_odomFrameId.c_str(), m_torsoFrameId.c_str());
     return;
   }
 
   if (m_tfListener.canTransform(m_torsoFrameId, m_sensorFrameId, ros::Time(0)) == false)
   {
-    ROS_INFO("Cannot transform from torso frame: %s to sensor frame: %s", m_torsoFrameId.c_str(), m_sensorFrameId.c_str());
+    ROS_DEBUG("Cannot transform from torso frame: %s to sensor frame: %s", m_torsoFrameId.c_str(), m_sensorFrameId.c_str());
     return;
   }
 

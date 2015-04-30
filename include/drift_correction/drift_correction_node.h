@@ -1,5 +1,5 @@
 #ifndef DRIFT_CORRECTION_NODE_GUARD_H
-#define DRIFT_CORRECTION_NODE_GUARD_H value
+#define DRIFT_CORRECTION_NODE_GUARD_H 1
 
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
